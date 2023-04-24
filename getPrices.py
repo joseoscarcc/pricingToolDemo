@@ -2,14 +2,14 @@
 import psycopg2
 import pandas as pd
 import datetime
-import config
+import os
   
 # establish connections
-conn1 = psycopg2.connect(database=config.db,
-                         host=config.hosting,
-                         user=config.usuario,
-                         password=config.contrasena,
-                         port=config.puerto)
+conn1 = psycopg2.connect(database=os.getenv("db"),
+                         host=os.getenv("hosting"),
+                         user=os.getenv("usuario"),
+                         password=os.getenv("contrasena"),
+                         port=os.getenv("puerto"))
   
 conn1.autocommit = True
 cursor = conn1.cursor()
