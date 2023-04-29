@@ -16,10 +16,13 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
+from plotly.subplots import make_subplots
 
 TGSites = getPrices.TGSites
 wt01 = getPrices.worktable
 tableGraphs = getPrices.preciosHist
+costos01 = getPrices.costos01
+costos02 = getPrices.costos02
 
 descargarTabla = pd.DataFrame()
 
@@ -107,6 +110,34 @@ def generate_graphs(dataframe):
     dcc.Graph(figure=fig)
     ])
 
+def generate_costs(tc01, tc02):
+    regular_fig = go.Figure(go.Indicator(
+        mode = "number+delta",
+        value = tc01['precio_tar'][tc01['producto']=='regular'].item(),
+        title = {"text": "Regular<br><span style='font-size:0.8em;color:gray'>Precio x Litro</span><br><span style='font-size:0.8em;color:gray'>comparativo vs dia anterior</span>"},
+        delta = {'reference': tc02['precio_tar'][tc02['producto']=='regular'].item(), 'relative': True}
+    ))
+    
+    premium_fig = go.Figure(go.Indicator(
+        mode = "number+delta",
+        value = tc01['precio_tar'][tc01['producto']=='premium'].item(),
+        title = {"text": "Premium<br><span style='font-size:0.8em;color:gray'>Precio x Litro</span><br><span style='font-size:0.8em;color:gray'>comparativo vs dia anterior</span>"},
+        delta = {'reference': tc02['precio_tar'][tc02['producto']=='premium'].item(), 'relative': True}
+    ))
+    
+    diesel_fig = go.Figure(go.Indicator(
+        mode = "number+delta",
+        value = tc01['precio_tar'][tc01['producto']=='diesel'].item(),
+        title = {"text": "Diesel<br><span style='font-size:0.8em;color:gray'>Precio x Litro</span><br><span style='font-size:0.8em;color:gray'>comparativo vs dia anterior</span>"},
+        delta = {'reference': tc02['precio_tar'][tc02['producto']=='diesel'].item(), 'relative': True}
+    ))
+    
+    return html.Div([
+        dcc.Graph(figure=regular_fig, style={'display': 'inline-block', 'width': '30%'}),
+        dcc.Graph(figure=premium_fig, style={'display': 'inline-block', 'width': '30%'}),
+        dcc.Graph(figure=diesel_fig, style={'display': 'inline-block', 'width': '30%'}),
+    ], style={'text-align': 'center'})
+
 tab1 = html.Div([
             html.H4(children='Estaciones de Servicio JOJUMA BI Pricing Tool DEMO'),
                 dcc.Checklist(
@@ -145,6 +176,14 @@ tab3 = html.Div([
                     inline=True
                 ),
                 html.Div(id='container_graphs')
+])
+
+tab4 = html.Div([
+            html.H4(children='COSTOS PEMEX'),
+                dcc.Dropdown(id='dropdowncostos', options=[
+                    {'label': i, 'value': i} for i in costos01.terminal.unique()
+                ], multi=True, placeholder='Escoge la terminal mas cercana...'),
+                html.Div(id='container_costs')
 ])
 # create = html.Div([ html.H1('Create User Account')
 #         , dcc.Location(id='create_user', refresh=True)
@@ -195,10 +234,11 @@ data = html.Div([
     dcc.Tabs(id="tabs-example", value='tab-1', children=[
         dcc.Tab(id="tab-1", label='Precios', value='tab-1'),
         dcc.Tab(id="tab-2", label='Mapa', value='tab-2'),
-        dcc.Tab(id="tab-3", label='Graficas', value='tab-3')
+        dcc.Tab(id="tab-3", label='Grafica', value='tab-3'),
+        dcc.Tab(id="tab-4", label='Costos', value='tab-4'),
     ]),
     html.Div(id='tabs-content',
-             children = [tab1,tab2,tab3]),
+             children = [tab1,tab2,tab3,tab4]),
     
     # html.Div([dcc.Dropdown(
     #                 id='dropdown',
@@ -333,6 +373,23 @@ def display_table(dropdownGraphs, productTypeGraphs):
     graphTable = tableGraphs[tableGraphs['compite_a'].isin(placeIDTG)]
     graphTable = graphTable[graphTable['product']==productTypeGraphs] 
     return generate_graphs(graphTable)
+
+@app.callback(
+    Output('container_costs', 'children'),
+    Input('dropdowncostos', 'value'))
+def display_costs(dropdownCosts):
+
+    if dropdownCosts is None:
+        costoTerminal = costos01[costos01.terminal.str.contains('AZCAPOTZALCO')]
+    else:
+        costoTerminal = costos01[costos01.terminal.str.contains('|'.join(dropdownCosts))]
+
+    if dropdownCosts is None:
+        costoTerminal02 = costos02[costos02.terminal.str.contains('AZCAPOTZALCO')]
+    else:
+        costoTerminal02 = costos02[costos02.terminal.str.contains('|'.join(dropdownCosts))]
+      
+    return generate_costs(costoTerminal,costoTerminal02)
 
 @app.callback(
     Output("download-dataframe-csv", "data"),
