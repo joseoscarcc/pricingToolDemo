@@ -34,10 +34,24 @@ WHERE p.date > now() - interval '30 day'
 sql3 = """
     select * from demo_sites
 """
+sql4 = """
+    SELECT * FROM costos_pemex WHERE date = (SELECT MAX(date) FROM costos_pemex)
+"""
+
+sql5 = """
+    SELECT * FROM costos_pemex WHERE date = (SELECT MAX(date) - 1 FROM costos_pemex)
+""" 
+
 worktable = pd.read_sql_query(sql, conn1)
 preciosHist = pd.read_sql_query(sql2,conn1)
 TGSites = pd.read_sql_query(sql3, conn1)
+costos01 = pd.read_sql_query(sql4, conn1)
+costos02 = pd.read_sql_query(sql5, conn1)
 conn1.commit()
 conn1.close()
 
+costos01['precio_tar'] = costos01['precio_tar']/1000
+costos02['precio_tar'] = costos02['precio_tar']/1000
+costos01['precio_tar'].round(2)
+costos02['precio_tar'].round(2)
 worktable['dif'].round(2)
