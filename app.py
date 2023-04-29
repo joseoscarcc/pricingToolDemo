@@ -307,6 +307,8 @@ def render_content(tab):
         return tab2
     elif tab == 'tab-3':
         return tab3
+    elif tab == 'tab-4':
+        return tab4
 @app.callback(
     Output('table-container', 'children'),
     Input('dropdown', 'value'),
