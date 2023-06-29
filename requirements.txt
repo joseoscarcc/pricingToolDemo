@@ -8,3 +8,5 @@ wtforms
 flask_wtf
 unidecode
 dash
+psycopg2
+gunicorn
