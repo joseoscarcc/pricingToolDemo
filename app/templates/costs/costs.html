@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="d-flex justify-content-center">
+        <div class="card card-body text-center">
+            <form id="my-form" class="form-inline" method="POST" action="{{ url_for('costs.index') }}">
+                <div class="form-group mr-3">
+                    <select id="terminal-select" class="form-control" name="terminal">
+                        <option value="">Seleccione terminal</option>
+                        <!-- Add other options dynamically -->
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Actualizar</button>
+            </form>
+        </div>
+    </div>
+</div>
+    <div class="row justify-content-center">
+        <div class="col-4">
+            <div id="regular_fig"></div>
+        </div>
+        <div class="col-4">
+            <div id="premium_fig"></div>
+        </div>
+        <div class="col-4">
+            <div id="diesel_fig"></div>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div id="grafica"></div>
+        </div>
+    </div>
+</div>
+
+{% block script %}
+<script>
+var regular = JSON.parse('{{ regular | safe }}');
+var premium = JSON.parse('{{ premium | safe }}');
+var diesel = JSON.parse('{{ diesel | safe }}');
+var fechas = JSON.parse('{{ fechas | safe }}');
+var regular_g = JSON.parse('{{ regular_grafica | safe }}');
+var premium_g = JSON.parse('{{ premium_grafica | safe }}');
+var diesel_g = JSON.parse('{{ diesel_grafica | safe }}');
+var fechas_g = JSON.parse('{{ fecha_grafica | safe }}');
+
+fetch('terminales/')
+        .then(response => response.json())
+        .then(data => {
+            const selectElement = document.getElementById('terminal-select');
+
+            // Iterate over the municipios and create option elements
+            data.terminales.forEach(terminal => {
+                const optionElement = document.createElement('option');
+                optionElement.value = terminal;
+                optionElement.text = terminal;
+                selectElement.appendChild(optionElement);
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            // Handle the error or display an error message to the user
+        });
+
+var regular_data = [
+  {
+    type: "indicator",
+    mode: "number+delta",
+    value: regular['hoy'],
+    number: { prefix: "$" ,valueformat:".2f"},
+    title: {
+      text:
+        "Costo Pemex<br><span style='font-size:0.8em;color:gray'>Regular</span><br><span style='font-size:0.8em;color:gray'>Fecha "+fechas['hoy']+"</span><br>"
+    },
+    delta: { reference: regular['ayer'], valueformat: ".2f" },
+    domain: { x: [0.15, 0.85], y: [0.2, 0.8] }
+  }
+];
+
+var regular_layout = {
+  width: 350,
+  height: 300,
+  margin: { t: 0, r: 50, l: 50, b: 0 }
+};
+
+Plotly.newPlot('regular_fig', regular_data, regular_layout);
+        
+var premium_data = [
+  {
+    type: "indicator",
+    mode: "number+delta",
+    value: premium['hoy'],
+    number: { prefix: "$" ,valueformat:".2f"},
+    title: {
+      text:
+        "Costo Pemex<br><span style='font-size:0.8em;color:gray'>Premium</span><br><span style='font-size:0.8em;color:gray'>Fecha "+fechas['hoy']+"</span>"
+    },
+    delta: { reference: premium['ayer'],valueformat:".2f" },
+    domain: { x: [0.15, 0.85], y: [0.2, 0.8] }
+  }
+];
+
+var premium_layout = {
+  width: 350,
+  height: 300,
+  margin: { t: 0, r: 50, l: 50, b: 0 }
+};
+
+Plotly.newPlot('premium_fig', premium_data, premium_layout);
+
+var diesel_data = [
+  {
+    type: "indicator",
+    mode: "number+delta",
+    value: diesel['hoy'],
+    number:  { prefix: "$" ,valueformat:".2f"},
+    title: {
+      text:
+        "Costo Pemex<br><span style='font-size:0.8em;color:gray'>Diesel</span><br><span style='font-size:0.8em;color:gray'>Fecha "+fechas['hoy']+"</span>"
+    },
+    delta: { reference: diesel['ayer'],valueformat:".2f" },
+    domain: { x: [0.15, 0.85], y: [0.2, 0.8] }    
+  }
+];
+
+var diesel_layout = {
+  width: 350,
+  height: 300,
+  margin: { t: 0, r: 50, l: 50, b: 0 }
+};
+
+Plotly.newPlot('diesel_fig', diesel_data, diesel_layout);
+
+var reg_g = {
+type: "scatter",
+mode: "lines",
+name: 'Regular',
+x: fechas_g,
+y: regular_g,
+line: {color: '#00FF00'}
+}
+
+var pre_g = {
+type: "scatter",
+mode: "lines",
+name: 'Premium',
+x: fechas_g,
+y: premium_g,
+line: {color: '#FF0000'}
+}
+
+var die_g = {
+type: "scatter",
+mode: "lines",
+name: 'Diesel',
+x: fechas_g,
+y: diesel_g,
+line: {color: '#000000'}
+}
+
+var financeData = [reg_g,pre_g,die_g];
+
+var financeLayout = {
+title: 'Historicos precios TAR',
+};
+
+Plotly.newPlot('grafica', financeData, financeLayout);
+
+
+</script>
+{% endblock %}
+{% endblock %}

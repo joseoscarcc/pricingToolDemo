@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+  <div class="row justify-content-center">
+      <div class="col-12">
+          <div class="card card-body">
+              <form id="my-form" class="form-inline" method="POST" action="{{ url_for('graph.index') }}">
+                  <div class="form-group mr-3">
+                      <select id="cre_id" class="form-control" name="cre_id">
+                          <option value="">Seleccione CRE-id</option>
+                          <!-- Add other options dynamically -->
+                      </select>
+                  </div>
+                  <div class="form-group">
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="radio" name="product" id="regular" value="regular" checked>
+                          <label class="form-check-label" for="regular">Regular</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="radio" name="product" id="premium" value="premium">
+                          <label class="form-check-label" for="premium">Premium</label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                          <input class="form-check-input" type="radio" name="product" id="diesel" value="diesel">
+                          <label class="form-check-label" for="diesel">Diesel</label>
+                      </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary mt-3">Actualizar</button>
+              </form>
+          </div>
+      </div>
+  </div>
+  <div class="row justify-content-center">
+      <div class="col-12">
+        <div id="graph"></div>
+    </div>
+</div>
+</div>
+{% block javascript %}
+
+<script>
+        var brand_prices = JSON.parse('{{ brand_prices | safe }}');
+          fetch('data/')
+                  .then(response => response.json())
+                  .then(data => {
+                      const selectElement = document.getElementById('cre_id');
+
+                      // Iterate over the municipios and create option elements
+                      data.cre_id.forEach(cre_id => {
+                          const optionElement = document.createElement('option');
+                          optionElement.value = cre_id;
+                          optionElement.text = cre_id;
+                          selectElement.appendChild(optionElement);
+                      });
+                  })
+                  .catch(error => {
+                      console.error('Error:', error);
+                      // Handle the error or display an error message to the user
+                  });
+
+        var datos = [];
+
+          // Iterate over each brand in the brand_prices dictionary
+          for (var brand in brand_prices) {
+            if (brand_prices.hasOwnProperty(brand)) {
+              // Create a new trace for each brand
+              var trace = {
+                x: brand_prices[brand]['fecha'],
+                y: brand_prices[brand]['precio'],
+                mode: 'line',
+                name: brand  // Use the brand name as the trace name
+              };
+
+              // Add the trace to the data array
+              datos.push(trace);
+            }
+          }
+
+          Plotly.newPlot('graph', datos);
+</script>
+{% endblock %}
+{% endblock %}     
+
+        

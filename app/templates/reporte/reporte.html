@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card card-body">
+                <form id="my-form" class="form-inline" method="POST" action="{{ url_for('reporte.index') }}">
+                    <div class="form-group mr-3">
+                        <select id="estado" class="form-control" name="estado">
+                            <option value="">Seleccione estado</option>
+                            <!-- Add other options dynamically -->
+                        </select>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary mt-3">Actualizar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        {% for item in averages %}
+        <div class="col-4">
+            <div id="plot-{{ loop.index }}"></div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<script>
+    fetch('estados/')
+                  .then(response => response.json())
+                  .then(data => {
+                      const selectElement = document.getElementById('estado');
+
+                      // Iterate over the municipios and create option elements
+                      data.estados.forEach(estado => {
+                          const optionElement = document.createElement('option');
+                          optionElement.value = estado;
+                          optionElement.text = estado;
+                          selectElement.appendChild(optionElement);
+                      });
+                  })
+                  .catch(error => {
+                      console.error('Error:', error);
+                      // Handle the error or display an error message to the user
+                  });
+
+    {% for item in averages %}
+    // Set the color based on the product
+    var gaugeColor = "{{ item.product }}" === "regular" ? "green" :
+                     "{{ item.product }}" === "premium" ? "red" :
+                     "{{ item.product }}" === "diesel" ? "black" :
+                     "gray"; // Default color if product doesn't match
+
+    // Create a data object for the current product with the updated gauge color
+    var data = [
+        {
+            domain: { x: [0, 1], y: [0, 1] },
+            value: {{ item.average }},
+            number: { prefix: "$" ,valueformat:".2f"},
+            title: { text: "{{ item.product }}" },
+            type: "indicator",
+            mode: "gauge+number+delta",
+            delta: { reference: {{ item.average_01 }} },
+            gauge: {
+                axis: { range: [{{ item.minimum }}, {{ item.maximum }}] },
+                bar: { color: gaugeColor }
+            }
+        }
+    ];
+
+    // Set the layout options for the current plot
+    var layout = { width: 450, height: 350 };
+
+    // Create a unique ID for each plot
+    var plotID = "plot-{{ loop.index }}";
+
+    // Create a new div element for the current plot
+    var plotDiv = document.createElement("div");
+    plotDiv.id = plotID;
+    plotDiv.style.marginTop = "20px"; // Add margin for spacing
+    document.getElementById(plotID).appendChild(plotDiv);
+
+    // Create the plot using the data and layout in the current div element
+    Plotly.newPlot(plotID, data, layout);
+    {% endfor %}
+</script>
+{% endblock %}
