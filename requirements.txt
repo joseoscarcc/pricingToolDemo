@@ -3,7 +3,6 @@ sqlalchemy
 pandas
 numpy
 plotly
-json
 wtforms
 flask_wtf
 unidecode
