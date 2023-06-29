@@ -2,7 +2,7 @@ from flask import render_template, jsonify, flash, request, redirect,url_for,get
 from app.configuracion import bp
 from app.extensions import db
 from app.models.auth import login_required, users
-from app.models.precios import competencia, precios_site, sites, get_site_data
+from app.models.precios import demo_competencia, precios_site, demo_sites, get_site_data
 from app.models.configuracion import marcas_places
 
 from sqlalchemy import cast, Integer, func
@@ -25,7 +25,7 @@ def index():
 
 @bp.route('/usuarios')
 def usuarios():
-    entries = users.query.filter_by(project='totalgas').all()
+    entries = users.query.filter_by(project='demo').all()
     return render_template('configuracion/showusers.html', entries=entries)
 
 @bp.route('/register', methods=('GET', 'POST'))
@@ -44,7 +44,7 @@ def register():
         
         if error is None:
             try:
-                new_user = users(username=username, password=generate_password_hash(password), email=email,type='user',project='totalgas')
+                new_user = users(username=username, password=generate_password_hash(password), email=email,type='user',project='demo')
 
                 # Add the new user to the database
                 db.session.add(new_user)
@@ -72,7 +72,7 @@ def delete(entry_id):
 @bp.route('/sitios')
 @login_required
 def sitios():
-    entries = sites.query.with_entities(sites.place_id,sites.cre_id, sites.nombre, sites.municipio, sites.estado, sites.marca).all()
+    entries = demo_sites.query.with_entities(demo_sites.place_id,demo_sites.cre_id, demo_sites.nombre, demo_sites.municipio, demo_sites.estado, demo_sites.marca).all()
     return render_template('configuracion/showsites.html', entries=entries)
 
 @bp.route('/nuevositio', methods=('GET', 'POST'))
@@ -80,7 +80,7 @@ def sitios():
 def nuevositio():
     if request.method == 'POST':
         cre_id = request.form['cre_id']
-        max_id = db.session.query(func.max(competencia.id_micromercado)).scalar()
+        max_id = db.session.query(func.max(demo_competencia.id_micromercado)).scalar()
 
         error = None
 
@@ -124,8 +124,8 @@ def guardarsitio():
         error = 'Es necesario un Permiso CRE ID valido.'
     if error is None:
         try:
-            new_sitio = sites(place_id=place_id, cre_id=cre_id, nombre=nombre, marca=marca,municipio=municipio,estado=estado,x=x,y=y)
-            new_competencia = competencia(id_micromercado=id_micromercado,id_estacion=1,place_id=place_id, cre_id=cre_id,marca=marca,compite_a=place_id,x=x,y=y)
+            new_sitio = demo_sites(place_id=place_id, cre_id=cre_id, nombre=nombre, marca=marca,municipio=municipio,estado=estado,x=x,y=y)
+            new_competencia = demo_competencia(id_micromercado=id_micromercado,id_estacion=1,place_id=place_id, cre_id=cre_id,marca=marca,compite_a=place_id,x=x,y=y)
             # Add the new user to the database
             db.session.add(new_sitio)
             db.session.commit()
@@ -143,7 +143,7 @@ def guardarsitio():
 @bp.route('/delete-sitios/<int:place_id>')
 @login_required
 def deletesitios(place_id):
-    entry = sites.query.get_or_404(int(place_id))
+    entry = demo_sites.query.get_or_404(int(place_id))
     db.session.delete(entry)
     db.session.commit()
     flash("Estacion eliminadas", "success")
@@ -152,7 +152,7 @@ def deletesitios(place_id):
 @bp.route('/competencia/<int:entry_id>')
 @login_required
 def vercompetencia(entry_id):
-    entries = competencia.query.with_entities(competencia.place_id,competencia.cre_id, competencia.marca).filter_by(compite_a=entry_id).all()
+    entries = demo_competencia.query.with_entities(demo_competencia.place_id,demo_competencia.cre_id, demo_competencia.marca).filter_by(compite_a=entry_id).all()
     return render_template('configuracion/showtrade.html', entries=entries,place_id=entry_id)
 
 @bp.route('/nuevacompetencia/<int:entry_id>', methods=('GET', 'POST'))
@@ -160,7 +160,7 @@ def vercompetencia(entry_id):
 def nuevacompetencia(entry_id):
     if request.method == 'POST':
         cre_id = request.form['cre_id']
-        result = competencia.query.with_entities(competencia.id_micromercado, func.max(competencia.id_estacion)).filter_by(place_id=entry_id).group_by(competencia.id_micromercado).first()
+        result = demo_competencia.query.with_entities(demo_competencia.id_micromercado, func.max(demo_competencia.id_estacion)).filter_by(place_id=entry_id).group_by(demo_competencia.id_micromercado).first()
         id_micromercado, id_estacion = result
 
         error = None
@@ -180,13 +180,13 @@ def nuevacompetencia(entry_id):
                 'x':entries[0][3],
                 'y':entries[0][4]
             }
-            estacion_propia = sites.query.with_entities(sites.cre_id,sites.nombre).filter_by(place_id=entry_id).all()
+            estacion_propia = demo_sites.query.with_entities(demo_sites.cre_id,demo_sites.nombre).filter_by(place_id=entry_id).all()
             estacion= estacion_propia[0][0] + " " + estacion_propia[0][1]
             return render_template('configuracion/nuevacompetencia.html', bandera=bandera,entry=entry, place_id=entry_id,estacion=estacion)
 
         flash(error)
     
-    estacion_propia = sites.query.with_entities(sites.cre_id,sites.nombre).filter_by(place_id=entry_id).all()
+    estacion_propia = demo_sites.query.with_entities(demo_sites.cre_id,demo_sites.nombre).filter_by(place_id=entry_id).all()
     estacion= estacion_propia[0][0] + " " + estacion_propia[0][1]
     print(estacion)
     bandera = 1
@@ -208,7 +208,7 @@ def guardarcompetencia(entry_id):
         error = 'Es necesario un Permiso CRE ID valido.'
     if error is None:
         try:
-            new_competencia = competencia(id_micromercado=id_micromercado,id_estacion=1,place_id=place_id, cre_id=cre_id,marca=marca,compite_a=entry_id,x=x,y=y)
+            new_competencia = demo_competencia(id_micromercado=id_micromercado,id_estacion=1,place_id=place_id, cre_id=cre_id,marca=marca,compite_a=entry_id,x=x,y=y)
             # Add the new user to the database
             db.session.add(new_competencia)
             db.session.commit()
@@ -224,7 +224,7 @@ def guardarcompetencia(entry_id):
 @bp.route('/delete-competencia/<int:place_id>/<int:compite_a>')
 @login_required
 def deletecompetencia(place_id, compite_a):
-    entries = competencia.query.filter(competencia.place_id == place_id, competencia.compite_a == compite_a).all()
+    entries = demo_competencia.query.filter(demo_competencia.place_id == place_id, demo_competencia.compite_a == compite_a).all()
     for entry in entries:
         db.session.delete(entry)
     db.session.commit()

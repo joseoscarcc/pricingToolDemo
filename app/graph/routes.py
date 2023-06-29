@@ -3,7 +3,7 @@ import json
 from app.graph import bp
 from app.models.auth import login_required
 from app.models.graph import data_for_graph
-from app.models.precios import get_site_data, get_place_id_by_cre_id
+from app.models.precios import get_site_data
 
 
 @bp.route('/', methods=['GET', 'POST'])

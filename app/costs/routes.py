@@ -3,7 +3,6 @@ from app.costs import bp
 from app.extensions import db
 from app.models.auth import login_required
 from app.models.costs import costos_pemex, terminales, get_terminal_info, get_terminal_data
-from app.models.precios import competencia, precios_site, sites, get_site_data
 import plotly.graph_objects as go
 from sqlalchemy import cast, Integer
 import pandas as pd

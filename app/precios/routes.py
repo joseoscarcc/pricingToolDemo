@@ -5,7 +5,7 @@ from sqlalchemy import func
 import pandas as pd
 import numpy as np
 from dash import html
-from app.models.precios import precios_site,competencia,round_float,get_site_data
+from app.models.precios import precios_site,demo_competencia,round_float,get_site_data
 from app.models.auth import login_required
 import json
 
@@ -20,17 +20,17 @@ def index():
     print(dia_anterior)
     # Subquery to retrieve the data from competencia and precios_site tables
     subquery = db.session.query(
-        competencia.id_micromercado,
-        competencia.id_estacion,
-        competencia.place_id,
-        competencia.cre_id,
-        competencia.marca,
-        competencia.x,
-        competencia.y,
+        demo_competencia.id_micromercado,
+        demo_competencia.id_estacion,
+        demo_competencia.place_id,
+        demo_competencia.cre_id,
+        demo_competencia.marca,
+        demo_competencia.x,
+        demo_competencia.y,
         precios_site.prices,
         precios_site.product,
-        competencia.compite_a
-        ).join(precios_site, competencia.place_id == func.cast(precios_site.place_id, db.Integer)).\
+        demo_competencia.compite_a
+        ).join(precios_site, demo_competencia.place_id == func.cast(precios_site.place_id, db.Integer)).\
     filter(precios_site.date == latest_date).subquery()
 
     # Main query to join the subquery with precios_site again and calculate the difference

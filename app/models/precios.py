@@ -6,7 +6,7 @@ class precios_site(db.Model):
     product = db.Column(db.Text)
     date = db.Column(db.Date)
 
-class competencia(db.Model):
+class demo_competencia(db.Model):
     id_micromercado = db.Column(db.Integer, primary_key=True)
     id_estacion = db.Column(db.Integer)
     place_id = db.Column(db.Integer)
@@ -17,7 +17,7 @@ class competencia(db.Model):
     y = db.Column(db.Float)
     compite_a = db.Column(db.Integer)
 
-class sites(db.Model):
+class demo_sites(db.Model):
     place_id = db.Column(db.Integer, primary_key=True)
     cre_id = db.Column(db.Text)
     nombre = db.Column(db.Text)
@@ -40,11 +40,11 @@ def round_float(value):
         return value
 
 def get_site_data():
-    result = sites.query.with_entities(
-        sites.place_id,
-        sites.cre_id,
-        sites.marca,
-        sites.municipio
+    result = demo_sites.query.with_entities(
+        demo_sites.place_id,
+        demo_sites.cre_id,
+        demo_sites.marca,
+        demo_sites.municipio
     ).all()
 
     site_list = []
@@ -66,16 +66,16 @@ def get_site_data():
     return site_list
 
 def get_unique_municipios():
-    result = sites.query.with_entities(sites.municipio).distinct().all()
+    result = demo_sites.query.with_entities(demo_sites.municipio).distinct().all()
     municipios = [row[0] for row in result]
     return municipios
 
 def get_site_data_by_municipio(municipio):
-    result = sites.query.with_entities(sites.place_id).filter_by(municipio=municipio).all()
+    result = demo_sites.query.with_entities(demo_sites.place_id).filter_by(municipio=municipio).all()
     place_ids = [row[0] for row in result]
     return place_ids
 
 def get_place_id_by_cre_id(target_cre_id):
-    site = sites.query.filter_by(cre_id=target_cre_id).first()
+    site = demo_sites.query.filter_by(cre_id=target_cre_id).first()
 
     return site.place_id

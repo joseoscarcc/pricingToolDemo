@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 import plotly.express as px
-from app.models.precios import precios_site,competencia,round_float,get_site_data,get_unique_municipios,get_site_data_by_municipio
+from app.models.precios import precios_site,demo_competencia,round_float,get_site_data,get_unique_municipios,get_site_data_by_municipio
 from app.models.auth import login_required
 import os
 
@@ -22,28 +22,28 @@ def index(municipio_value=None, product_value=None):
         product_value = request.form.get('product')
 
     if municipio_value is None:
-         municipio_value = 'Juarez'
+         municipio_value = 'Puebla'
     if product_value is None:
         product_value = 'regular'
     
-    if municipio_value == 'Juarez':
-        citylat = 31.71947
-        citylon = -106.4514
-    elif municipio_value == "Aguascalientes":
-        citylat = 21.91797
-        citylon = -102.2973
-    elif municipio_value == "Delicias":
-        citylat = 28.184184
-        citylon = -105.463511
-    elif municipio_value == "Parral":
-        citylat = 26.933387
-        citylon = -105.669176
-    elif municipio_value == "Ahumada":
-        citylat = 30.574909
-        citylon = -106.510286
-    else:
-        citylat = 31.71947
-        citylon = -106.4514
+    if municipio_value == 'Hermosillo':
+        citylat = 29.06933
+        citylon = -110.9706
+    elif municipio_value == "Merida":
+        citylat = 20.94868
+        citylon = -89.64977
+    elif municipio_value == "Puebla":
+        citylat = 19.0257
+        citylon = -98.20509
+    elif municipio_value == "Torreon":
+        citylat = 25.54993
+        citylon = -103.4232
+    elif municipio_value == "Tijuana":
+        citylat = 32.51887
+        citylon = -117.0121
+    elif municipio_value == "Cuahutemoc":
+        citylat = 19.4191
+        citylon = -99.1573
 
     place_ids = get_site_data_by_municipio(municipio_value)
 
@@ -53,16 +53,16 @@ def index(municipio_value=None, product_value=None):
     )
 
     results = (
-        precios_site.query.join(competencia, cast(precios_site.place_id, Integer) == competencia.place_id)
-        .filter(competencia.compite_a.in_(place_ids))
+        precios_site.query.join(demo_competencia, cast(precios_site.place_id, Integer) == demo_competencia.place_id)
+        .filter(demo_competencia.compite_a.in_(place_ids))
         .filter(precios_site.product == product_value)
         .filter(precios_site.date == latest_date)
         .with_entities(
-            competencia.cre_id,
-            competencia.marca,
+            demo_competencia.cre_id,
+            demo_competencia.marca,
             precios_site.prices,
-            competencia.x,
-            competencia.y
+            demo_competencia.x,
+            demo_competencia.y
         )
         .all()
     )
@@ -103,7 +103,7 @@ def get_municipios():
 def data(municipio_value=None, product_value=None):
 
     if municipio_value is None:
-         municipio_value = 'Juarez'
+         municipio_value = 'Hermosillo'
     if product_value is None:
         product_value = 'regular'
 
@@ -115,16 +115,16 @@ def data(municipio_value=None, product_value=None):
     )
 
     results = (
-        precios_site.query.join(competencia, cast(precios_site.place_id, Integer) == competencia.place_id)
-        .filter(competencia.compite_a.in_(place_ids))
+        precios_site.query.join(demo_competencia, cast(precios_site.place_id, Integer) == demo_competencia.place_id)
+        .filter(demo_competencia.compite_a.in_(place_ids))
         .filter(precios_site.product == product_value)
         .filter(precios_site.date == latest_date)
         .with_entities(
-            competencia.cre_id,
-            competencia.marca,
+            demo_competencia.cre_id,
+            demo_competencia.marca,
             precios_site.prices,
-            competencia.x,
-            competencia.y
+            demo_competencia.x,
+            demo_competencia.y
         )
         .all()
     )
