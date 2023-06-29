@@ -9,3 +9,4 @@ unidecode
 dash
 psycopg2
 gunicorn
+flask_sqlalchemy
