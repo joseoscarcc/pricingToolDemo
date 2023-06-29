@@ -17,7 +17,7 @@ def index(cre_id=None, product_value=None):
         site_data = get_site_data()
         place_id_value = next((site['place_id'] for site in site_data if site['cre_id'] == cre_id), None)
     if cre_id is None:
-        place_id_value = 22534
+        place_id_value = 2552
     if product_value is None:
         product_value = "regular"
     
@@ -30,6 +30,6 @@ def index(cre_id=None, product_value=None):
 def data():
     site_data = get_site_data()
 
-    totalgas_cre_ids = [site['cre_id'] for site in site_data if site['marca'] == 'TOTALGAS']
+    totalgas_cre_ids = [site['cre_id'] for site in site_data ]
 
     return jsonify({'cre_id': totalgas_cre_ids})
