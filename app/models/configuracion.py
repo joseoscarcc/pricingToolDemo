@@ -1,13 +1,5 @@
-from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SubmitField, IntegerField
-from wtforms.validators import DataRequired
 from app.extensions import db
 
-class UserDataForm(FlaskForm):
-    user = StringField('usuario', validators=[DataRequired()])
-    password = StringField('password', validators=[DataRequired()])
-    amount = IntegerField('Amount', validators = [DataRequired()])                                   
-    submit = SubmitField('Generate Report')
 
 class marcas_places(db.Model):
     place_id = db.Column(db.Integer, primary_key=True)

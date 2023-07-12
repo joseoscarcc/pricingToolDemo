@@ -1,20 +1,12 @@
-from flask import render_template, jsonify, flash, request, redirect,url_for,get_flashed_messages
+from flask import render_template, flash, request, redirect,url_for
 from app.configuracion import bp
 from app.extensions import db
 from app.models.auth import login_required, users
-from app.models.precios import demo_competencia, precios_site, demo_sites, get_site_data
+from app.models.precios import demo_competencia, demo_sites
 from app.models.configuracion import marcas_places
-
-from sqlalchemy import cast, Integer, func
+from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
-
-import pandas as pd
-import plotly
-import plotly.express as px
-import json
-import numpy as np
-from datetime import datetime, timedelta
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import generate_password_hash
 
 @bp.route('/')
 @login_required

@@ -1,12 +1,21 @@
 from app.extensions import db
+from sqlalchemy import and_, case, func
 
 class precios_site(db.Model):
+    __tablename__ = 'precios_site'
+
     place_id = db.Column(db.Text, primary_key=True)
     prices = db.Column(db.Float(8))
     product = db.Column(db.Text)
     date = db.Column(db.Date)
 
+    # Define the foreign key relationship to demo_competencia
+    demo_competencia_id = db.Column(db.Integer, db.ForeignKey('demo_competencia.place_id'))
+
+
 class demo_competencia(db.Model):
+    __tablename__ = 'demo_competencia'
+
     id_micromercado = db.Column(db.Integer, primary_key=True)
     id_estacion = db.Column(db.Integer)
     place_id = db.Column(db.Integer)
@@ -16,6 +25,9 @@ class demo_competencia(db.Model):
     x = db.Column(db.Float)
     y = db.Column(db.Float)
     compite_a = db.Column(db.Integer)
+
+    # Define the one-to-many relationship to precios_site
+    precios = db.relationship('precios_site', backref='demo_competencia')
 
 class demo_sites(db.Model):
     place_id = db.Column(db.Integer, primary_key=True)
@@ -79,3 +91,55 @@ def get_place_id_by_cre_id(target_cre_id):
     site = demo_sites.query.filter_by(cre_id=target_cre_id).first()
 
     return site.place_id
+
+def get_data_table():
+    latest_date = db.session.query(func.max(precios_site.date)).scalar()
+    hoy = get_precios_competencia(latest_date)
+    dia_anterior = db.session.query(func.max(precios_site.date) - 1).scalar()
+    ayer = get_precios_competencia(dia_anterior)
+    return hoy
+
+def get_precios_competencia(fecha):
+    
+    given_date = fecha
+    coalesce_value = '-'
+    round_digits = 2    
+
+    result = db.session.query(
+        demo_competencia.id_micromercado,
+        demo_competencia.id_estacion,
+        demo_competencia.cre_id,
+        demo_competencia.place_id,
+        demo_competencia.marca,
+        func.coalesce(
+            func.max(case((precios_site.product == 'regular', func.cast(precios_site.prices, db.Text))), else_="-"),
+            "-"
+        ).label('regular_prices'),
+        func.coalesce(
+            func.max(case((precios_site.product == 'premium', func.cast(precios_site.prices, db.Text))), else_="-"),
+            "-"
+        ).label('premium_prices'),
+        func.coalesce(
+            func.max(case((precios_site.product == 'diesel', func.cast(precios_site.prices, db.Text))), else_="-"),
+            "-"
+        ).label('diesel_prices')
+    ).outerjoin(
+        precios_site,
+        and_(
+            func.cast(demo_competencia.place_id, db.Text) == precios_site.place_id,
+            precios_site.date == given_date
+        )
+    ).group_by(
+        demo_competencia.id_micromercado,
+        demo_competencia.id_estacion,
+        demo_competencia.cre_id,
+        demo_competencia.place_id,
+        demo_competencia.marca
+    ).order_by(
+        demo_competencia.id_micromercado,
+        demo_competencia.id_estacion
+    ).all()
+
+    return result
+
+    

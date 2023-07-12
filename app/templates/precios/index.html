@@ -16,21 +16,39 @@
         <button id="send-button" class="btn btn-primary">Enviar Selección</button>  <!-- New button to send selected checkboxes -->
     </div>
 
-    <table class="table">
-        <thead class="thead-green" id="myTable">
+    <h2>Tabla de Precios</h2>
+    <div class="row">
+      <div class="col-sm-10 mx-auto">
+        <table class="table table-striped">
+          <thead class="thead-dark">
             <tr>
-                <th data-colname="cre_id" data-order="desc">CRE ID</th>
-                <th data-colname="marca" data-order="desc">Marca</th>
-                <th data-colname="regular" data-order="desc">Regular</th>
-                <th data-colname="premium" data-order="desc">Premium</th>
-                <th data-colname="diesel" data-order="desc">Diesel</th>
-                <th>Checkbox</th>
+              <th scope="col">Permiso CRE</th>
+              <th scope="col">Marca</th>
+              <th scope="col">Regular</th>
+              <th scope="col">Premium</th>
+              <th scope="col">Diesel</th>
+              <th scope="col">Cambio</th>
             </tr>
-        </thead>
-        <tbody id="miTabla">
-
-        </tbody>
-    </table>
+          </thead>
+          <tbody>
+            {% for data in latest %}
+            <tr>
+              <td>{{ data.cre_id }}</td>
+              <td>{{ data.marca }}</td>
+              <td>{{ data.regular_prices }}</td>
+              <td>{{ data.premium_prices }}</td>
+              <td>{{ data.diesel_prices }}</td>
+              <td>
+                {% if data.id_estacion == 1 %}
+                <a href="{{ url_for('precios.cambioprecio', entry_id=data.place_id) }}" class="btn btn-outline-danger btn-sm">Cambio</a>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
 
 </div>
 
