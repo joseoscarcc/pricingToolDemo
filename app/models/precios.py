@@ -97,7 +97,87 @@ def get_data_table():
     hoy = get_precios_competencia(latest_date)
     dia_anterior = db.session.query(func.max(precios_site.date) - 1).scalar()
     ayer = get_precios_competencia(dia_anterior)
-    return hoy
+    regular_prices = 1
+    premium_prices = 1
+    diesel_prices = 1
+    row_i = 0
+    row_k = 0
+    row_j = 0
+
+    table = "<table class=\"table table-striped\">"
+    table += "<thead class=\"thead-dark\">"
+    table += "<tr><th>Permiso CRE</th><th>Marca</th><th>Regular</th><th>Premium</th><th>Diesel</th><th>Cambio</th></tr></thead>"
+    table += "<tbody>"
+    for data in hoy:
+        if data.id_estacion == 1:
+            
+            cre_id = data.cre_id
+            marca = data.marca
+            regular_prices = data.regular_prices
+            premium_prices = data.premium_prices
+            diesel_prices = data.diesel_prices
+
+            table += f"<tr class=\"table-primary\"><td>{cre_id}</td><td>{marca}</td><td>{regular_prices}</td><td>{premium_prices}</td><td>{diesel_prices}</td>"
+            table += f"<td><a href=\"{{ url_for('precios.cambioprecio', entry_id={data.place_id}) }}\" class=\"btn btn-outline-danger btn-sm\">Cambio</a></td></tr>"
+        else:
+            cre_id = data.cre_id
+            marca = data.marca
+            regular_prices_01 = data.regular_prices
+            premium_prices_01 = data.premium_prices
+            diesel_prices_01 = data.diesel_prices
+        
+            try:
+                dif_reg = round(float(regular_prices) - float(regular_prices_01),2)
+                if dif_reg > 0.30:
+                    row_i = 1
+                elif dif_reg < -0.30:
+                    row_i = 1
+                else:
+                    row_i = 0
+            except:
+                dif_reg = "-"
+                row_i = 0
+            try:
+                dif_premium = round(float(premium_prices) - float(premium_prices_01),2)
+                if dif_premium > 0.30:
+                    row_j = 1
+                elif dif_premium < -0.30:
+                    row_j = 1
+                else:
+                    row_j = 0
+            except:
+                dif_premium = "-"
+                row_j = 0
+            try:
+                dif_diesel = round(float(diesel_prices) - float(diesel_prices_01),0)
+                if dif_diesel > 0.30:
+                    row_k = 1
+                elif dif_diesel < -0.30:
+                    row_k = 1
+                else:
+                    row_k = 0
+            except:
+                dif_diesel = "-"
+                row_k = 0
+
+            # Determine the color and emoticon based on the difference value
+            row_n = row_i + row_k + row_j
+            if row_n >= 2:
+                row_color = ""
+                emoticon = "❌"  # Negative emoticon
+            elif 0 < row_n > 2:
+                row_color = ""
+                emoticon = "🧐"
+            else:
+                row_color = ""
+                emoticon = "✅"  # Positive emoticon
+
+            table += f"<tr class=\"table-secondary\"><td>{cre_id}</td><td>{marca}</td><td>{regular_prices_01}</td><td>{premium_prices_01}</td><td>{diesel_prices_01}</td><td></td></tr>"
+            table += f"<tr class=\"{row_color}\"><td></td><td>Diferencia</td><td>{dif_reg}</td><td>{dif_premium}</td><td>{dif_diesel}</td><td>{emoticon}</td></tr>"
+    table += "</tbody>"
+    table += "</table>"
+
+    return table
 
 def get_precios_competencia(fecha):
     
