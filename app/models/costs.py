@@ -12,8 +12,9 @@ class costos_pemex(db.Model):
     date = db.Column(db.Date)
 
 def terminales():
-    unique_terminals = db.session.query(costos_pemex.terminal).distinct().all()
-    terminal_list = [unidecode(terminal[0]) for terminal in unique_terminals]
+    unique_terminals = db.session.query(costos_pemex.id_terminal, costos_pemex.terminal).distinct().all()
+    #terminal_list = [unidecode(terminal[0]) for terminal in unique_terminals]
+    terminal_list = [{'id_terminal': terminal[0], 'terminal': unidecode(terminal[1])} for terminal in unique_terminals]
     return terminal_list
 
 def get_terminal_info(terminal):
@@ -22,7 +23,7 @@ def get_terminal_info(terminal):
 
     # Get the information for the latest date
     latest_info = db.session.query(costos_pemex.precio_tar, costos_pemex.producto).filter(
-        costos_pemex.terminal == terminal,
+        costos_pemex.id_terminal == terminal,
         costos_pemex.date == latest_date
     ).all()
 
@@ -31,7 +32,7 @@ def get_terminal_info(terminal):
 
     # Get the information for the previous date
     previous_info = db.session.query(costos_pemex.precio_tar, costos_pemex.producto).filter(
-        costos_pemex.terminal == terminal,
+        costos_pemex.id_terminal == terminal,
         costos_pemex.date == previous_date
     ).all()
 
@@ -71,7 +72,7 @@ def get_terminal_data(terminal):
 
     # Query the database to retrieve the data for the specified terminal within the past 90 days
     data = db.session.query(costos_pemex.precio_tar, costos_pemex.producto, costos_pemex.date) \
-                   .filter(costos_pemex.terminal == terminal, costos_pemex.date >= past_90_days) \
+                   .filter(costos_pemex.id_terminal == terminal, costos_pemex.date >= past_90_days) \
                    .order_by(asc(costos_pemex.date)) \
                    .all()
     #print(data)

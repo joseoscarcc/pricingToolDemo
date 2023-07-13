@@ -47,24 +47,24 @@ var diesel_g = JSON.parse('{{ diesel_grafica | safe }}');
 var fechas_g = JSON.parse('{{ fecha_grafica | safe }}');
 
 fetch('terminales/')
-        .then(response => response.json())
-        .then(data => {
-            const selectElement = document.getElementById('terminal-select');
+  .then(response => response.json())
+  .then(data => {
+    const selectElement = document.getElementById('terminal-select');
 
-            // Iterate over the municipios and create option elements
-            data.terminales.forEach(terminal => {
-                const optionElement = document.createElement('option');
-                optionElement.value = terminal;
-                optionElement.text = terminal;
-                selectElement.appendChild(optionElement);
-            });
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            // Handle the error or display an error message to the user
-        });
+    // Iterate over the terminales and create option elements
+    data.terminales.forEach(terminal => {
+      const optionElement = document.createElement('option');
+      optionElement.value = terminal.id_terminal;  // Set the id_terminal as the value
+      optionElement.text = terminal.terminal;
+      selectElement.appendChild(optionElement);
+    });
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    // Handle the error or display an error message to the user
+  });
 
-var regular_data = [
+  var regular_data = [
   {
     type: "indicator",
     mode: "number+delta",

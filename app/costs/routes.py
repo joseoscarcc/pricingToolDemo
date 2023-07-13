@@ -19,18 +19,16 @@ def index(terminal_value=None):
     title="Dashboard Costos"
 
     if request.method == 'POST':
-        terminal_value = request.form.get('terminal')
+        terminal_value = int(request.form.get('terminal'))
         
     if terminal_value is None:
-         terminal_value = 'AZCAPOTZALCO'
+         terminal_value = 699
 
     costos = get_terminal_info(terminal_value)
-    print(costos['ayer_regular_price'])
     regular = {
         "hoy": costos['hoy_regular_price'],
         "ayer": costos['ayer_regular_price']
     }
-    print(regular['ayer'])
     premium = {
         "hoy": costos['hoy_premium_price'],
         "ayer": costos['ayer_premium_price']

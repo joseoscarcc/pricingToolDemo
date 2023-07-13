@@ -32,7 +32,7 @@ class demo_competencia(db.Model):
 class demo_sites(db.Model):
     place_id = db.Column(db.Integer, primary_key=True)
     cre_id = db.Column(db.Text)
-    nombre = db.Column(db.Text)
+    name = db.Column(db.Text)
     rfc = db.Column(db.Text)
     x = db.Column(db.Float)
     y = db.Column(db.Float)
@@ -104,7 +104,7 @@ def get_data_table():
     row_k = 0
     row_j = 0
 
-    table = "<table class=\"table table-striped\">"
+    table = "<table id=\"table\" class=\"table table-striped table-sm table-responsive\" >"
     table += "<thead class=\"thead-dark\">"
     table += "<tr><th>Permiso CRE</th><th>Marca</th><th>Regular</th><th>-d</th><th>Premium</th><th>-d</th><th>Diesel</th><th>-d</th><th>Cambio</th></tr></thead>"
     table += "<tbody>"

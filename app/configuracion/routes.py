@@ -64,7 +64,7 @@ def delete(entry_id):
 @bp.route('/sitios')
 @login_required
 def sitios():
-    entries = demo_sites.query.with_entities(demo_sites.place_id,demo_sites.cre_id, demo_sites.nombre, demo_sites.municipio, demo_sites.estado, demo_sites.marca).all()
+    entries = demo_sites.query.with_entities(demo_sites.place_id,demo_sites.cre_id, demo_sites.name, demo_sites.municipio, demo_sites.estado, demo_sites.marca).all()
     return render_template('configuracion/showsites.html', entries=entries)
 
 @bp.route('/nuevositio', methods=('GET', 'POST'))
@@ -80,7 +80,7 @@ def nuevositio():
             error = 'Es necesario un Permiso CRE ID valido.'
         
         if error is None:
-            entries = marcas_places.query.with_entities(marcas_places.place_id,marcas_places.cre_id, marcas_places.municipio, marcas_places.estado, marcas_places.brand,marcas_places.x,marcas_places.y).filter_by(cre_id=cre_id).all()
+            entries = marcas_places.query.with_entities(marcas_places.place_id,marcas_places.cre_id, marcas_places.municipio, marcas_places.estado, marcas_places.marca,marcas_places.x,marcas_places.y).filter_by(cre_id=cre_id).all()
             bandera = 2
             entry = {
                 'id_micromercado':max_id,
