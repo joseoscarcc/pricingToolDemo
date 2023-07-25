@@ -87,16 +87,19 @@ def get_site_data_by_municipio(municipio):
     place_ids = [row[0] for row in result]
     return place_ids
 
-def get_place_id_by_cre_id(target_cre_id):
-    site = demo_sites.query.filter_by(cre_id=target_cre_id).first()
+# def get_place_id_by_cre_id(target_cre_id):
+#     site = demo_sites.query.filter_by(cre_id=target_cre_id).first()
 
-    return site.place_id
+#     return site.place_id
 
-def get_data_table():
+def get_data_table(target_cre_id):
     latest_date = db.session.query(func.max(precios_site.date)).scalar()
-    hoy = get_precios_competencia(latest_date)
+    #hoy = get_precios_competencia(latest_date)
+    hoy = get_competencia_by_place_id(target_cre_id,latest_date)
     dia_anterior = db.session.query(func.max(precios_site.date) - 1).scalar()
-    ayer = get_precios_competencia(dia_anterior)
+    #ayer = get_precios_competencia(dia_anterior)
+    ayer=get_competencia_by_place_id(target_cre_id,dia_anterior)
+
     regular_prices = 1
     premium_prices = 1
     diesel_prices = 1
@@ -320,4 +323,107 @@ def get_precios_competencia(fecha):
 
     return result
 
+# def new_get_competencia(cre_id_value=None):
+#     given_date = db.session.query(func.max(precios_site.date)).scalar()
+#     coalesce_value = '-'
+#     round_digits = 2
+
+#     result = db.session.query(
+#         demo_competencia.id_micromercado,
+#         demo_competencia.id_estacion,
+#         demo_competencia.cre_id,
+#         demo_competencia.place_id,
+#         demo_competencia.marca,
+#         func.coalesce(
+#             func.max(case((precios_site.product == 'regular', func.cast(precios_site.prices, db.Text))), else_="-"),
+#             "-"
+#         ).label('regular_prices'),
+#         func.coalesce(
+#             func.max(case((precios_site.product == 'premium', func.cast(precios_site.prices, db.Text))), else_="-"),
+#             "-"
+#         ).label('premium_prices'),
+#         func.coalesce(
+#             func.max(case((precios_site.product == 'diesel', func.cast(precios_site.prices, db.Text))), else_="-"),
+#             "-"
+#         ).label('diesel_prices')
+#     ).outerjoin(
+#         precios_site,
+#         and_(
+#             func.cast(demo_competencia.place_id, db.Text) == precios_site.place_id,
+#             precios_site.date == given_date
+#         )
+#     )
+
+#     # Include cre_id filter if cre_id_value is not None
+#     if cre_id_value is not None:
+#         cre_id = 'PL/' + cre_id_value
+#         result = result.filter(demo_competencia.cre_id.like(cre_id + '%'))
+
+#     result = result.group_by(
+#         demo_competencia.id_micromercado,
+#         demo_competencia.id_estacion,
+#         demo_competencia.cre_id,
+#         demo_competencia.place_id,
+#         demo_competencia.marca
+#     ).order_by(
+#         demo_competencia.id_micromercado,
+#         demo_competencia.id_estacion
+#     ).all()
+
+#     return result
+
+def get_place_id_by_cre_id(target_cre_id):
+    site = demo_competencia.query.filter(demo_competencia.cre_id.like(f'PL/{target_cre_id}/%')).first()
+
+    if site is None:
+        return None
+
+    return site.place_id
+
+def get_competencia_by_place_id(target_cre_id, fecha):
+    place_id = get_place_id_by_cre_id(target_cre_id)
+    given_date = fecha
+
     
+    result = db.session.query(
+        demo_competencia.id_micromercado,
+        demo_competencia.id_estacion,
+        demo_competencia.cre_id,
+        demo_competencia.place_id,
+        demo_competencia.marca,
+        func.coalesce(
+            func.max(case((precios_site.product == 'regular', func.cast(precios_site.prices, db.Text))), else_="-"),
+            "-"
+        ).label('regular_prices'),
+        func.coalesce(
+            func.max(case((precios_site.product == 'premium', func.cast(precios_site.prices, db.Text))), else_="-"),
+            "-"
+        ).label('premium_prices'),
+        func.coalesce(
+            func.max(case((precios_site.product == 'diesel', func.cast(precios_site.prices, db.Text))), else_="-"),
+            "-"
+        ).label('diesel_prices')
+    ).outerjoin(
+        precios_site,
+        and_(
+            func.cast(demo_competencia.place_id, db.Text) == precios_site.place_id,
+            precios_site.date == given_date
+        )
+    )
+
+    # Check if place_id is not None and add the filter condition
+    if place_id is not None:
+        result = result.filter(demo_competencia.compite_a == place_id)
+
+    result = result.group_by(
+        demo_competencia.id_micromercado,
+        demo_competencia.id_estacion,
+        demo_competencia.cre_id,
+        demo_competencia.place_id,
+        demo_competencia.marca
+    ).order_by(
+        demo_competencia.id_micromercado,
+        demo_competencia.id_estacion
+    ).all()
+
+    return result
