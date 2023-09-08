@@ -1,4 +1,5 @@
 from app.extensions import db
+from flask import url_for
 from sqlalchemy import and_, case, func
 
 class precios_site(db.Model):
@@ -170,7 +171,7 @@ def get_data_table(target_cre_id):
                     dif_d_d = "-"
 
                 table += f"<tr class=\"table-primary\"><td>{cre_id}</td><td>{marca}</td><td>{regular_prices}</td><td class=\"{c}\">{b}{dif_d_r}</td><td>{premium_prices}</td><td class=\"{c}\">{b}{dif_d_p}</td><td>{diesel_prices}</td><td class=\"{c}\">{b}{dif_d_d}</td>"
-                table += f"<td><a href=\"{{ url_for('precios.cambioprecio', entry_id={data.place_id}) }}\" class=\"btn btn-outline-danger btn-sm\">Cambio</a></td></tr>"
+                table += f"<td><a href=\"{url_for('precios.cambioprecio', entry_id=data.place_id)}\" class=\"btn btn-outline-danger btn-sm\">Cambio</a></td></tr>"
             else:
                 cre_id = data.cre_id
                 marca = data.marca
@@ -380,8 +381,19 @@ def get_place_id_by_cre_id(target_cre_id):
 
     return site.place_id
 
+def get_cre_id_by_place_id(place_id):
+    site = demo_competencia.query.filter_by(place_id=place_id).first()
+
+    if site is None:
+        return None
+
+    return site.cre_id
+
 def get_competencia_by_place_id(target_cre_id, fecha):
-    place_id = get_place_id_by_cre_id(target_cre_id)
+    if isinstance(target_cre_id, int):
+        place_id = target_cre_id
+    else:
+        place_id = get_place_id_by_cre_id(target_cre_id)
     given_date = fecha
 
     

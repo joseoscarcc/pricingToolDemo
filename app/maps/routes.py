@@ -22,7 +22,7 @@ def index(municipio_value=None, product_value=None):
         product_value = request.form.get('product')
 
     if municipio_value is None:
-         municipio_value = 'Puebla'
+         municipio_value = 'Rosario'
     if product_value is None:
         product_value = 'regular'
     
@@ -44,6 +44,9 @@ def index(municipio_value=None, product_value=None):
     elif municipio_value == "Cuahutemoc":
         citylat = 19.4191
         citylon = -99.1573
+    elif municipio_value == "Rosario":
+        citylat = 22.992528
+        citylon = -105.860553
 
     place_ids = get_site_data_by_municipio(municipio_value)
 

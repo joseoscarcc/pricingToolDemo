@@ -1,8 +1,75 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <span class="title"><h1>{% block title %} Categorias {% endblock %}</h1></span>
-    <div class="content">
-        <h2>This is the categories page within the posts blueprint</h2>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+       <!-- Sidebar -->
+       <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-dark sidebar">
+        <div class="position-sticky">
+   
+        </div>
+    </nav>
+
+        <!-- Main content area -->
+        <main class="col-md-9 ml-sm-auto col-lg-10 px-md-4">
+            <h2>Tabla de Precios</h2>
+            <div class="row">
+                <div class="col-sm-10 mx-auto">
+                    {{ latest|safe }}
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-8 mx-auto">
+                    <form method="post">
+                      <div class="form-row">
+                        <div class="form-group col-md-6">
+                          <label for="regular" class="col-sm-4 control-label">Regular</label>
+                          
+                            <input type="text" class="form-control" name="regular" id="regular" required>
+                          
+                          
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group col-md-6">
+                          <label for="premium" class="col-sm-4 control-label">Premium</label>
+                         
+                            <input type="text" class="form-control" name="premium" id="premium" required>
+                      
+                          
+                        </div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group col-md-6">
+                          <label for="diesel" class="col-sm-4 control-label">Diesel</label>
+                          
+                          <input type="text" class="form-control" name="diesel" id="diesel" required>
+                        
+                        </div>
+                      </div>
+                      <button type="submit" class="btn btn-primary">Guardar</button>
+                    </form>
+                  </div>
+            </div>
+        </main>
     </div>
+</div>
+
+<!-- Add necessary Bootstrap and other JavaScript libraries here -->
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<script>
+    // JavaScript code for handling the collapsible sidebar menu
+    $(document).ready(function() {
+        // Event listener for state links
+        $('.nav-link[data-toggle="collapse"]').on('click', function() {
+            $(this).next('.collapse').collapse('toggle');
+        });
+    });
+</script>
 {% endblock %}
