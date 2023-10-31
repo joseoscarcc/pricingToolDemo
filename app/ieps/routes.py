@@ -5,4 +5,4 @@ from app.ieps import bp
 @bp.route('/')
 @login_required
 def index():
-    return render_template('ieps.html')
+    return render_template('ieps/ieps.html')
