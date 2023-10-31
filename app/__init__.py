@@ -37,6 +37,9 @@ def create_app(config_class=Config):
     from app.reporte import bp as reporte_bp
     app.register_blueprint(reporte_bp, url_prefix='/reporte')
 
+    from app.ieps import bp as ieps_bp
+    app.register_blueprint(ieps_bp, url_prefix='/ieps')
+
     @app.route('/test/')
     def test_page():
         return '<h1>Testing the Flask Application Factory Pattern</h1>'
